@@ -2,8 +2,9 @@ const express = require('express')
 const app = express()
 const superagent = require('superagent')
 const cheerio = require('cheerio')
+const fs = require('fs')
 
-app.get('/', (req, res, next) => {
+function getCEdataAndWriteFile (req, res, next) {
   let _res = res
   superagent
     .get('http://fate-go.cirnopedia.org/craft_essence.php')
@@ -112,12 +113,26 @@ app.get('/', (req, res, next) => {
         })
       })
 
-      // console.log(list);
-      _res.send(list)
+      // 写入文件
+      fs.writeFileSync('./assets/craft_essence.txt', JSON.stringify(list))
+      console.log('writeFileSync done!');
+      next()
     })
     .catch((err) => {
       console.log('superagent err', err);
     })
+}
+
+function readFileAndGetCEdata (req, res, next) {
+  let cedata = fs.readFileSync('./assets/craft_essence.txt')
+  req.cedata = JSON.parse(cedata)
+  next()
+}
+
+app.use(readFileAndGetCEdata);
+
+app.get('/', (req, res, next) => {
+  res.send(req.cedata)
 })
 
 
