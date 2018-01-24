@@ -4,8 +4,7 @@ const superagent = require('superagent')
 const cheerio = require('cheerio')
 const fs = require('fs')
 
-function getCEdataAndWriteFile (req, res, next) {
-  let _res = res
+function getCEdataAndWriteFile () {
   superagent
     .get('http://fate-go.cirnopedia.org/craft_essence.php')
     // http://fate-go.cirnopedia.org/craft_essence.php
@@ -49,6 +48,9 @@ function getCEdataAndWriteFile (req, res, next) {
             // Cost
             case 2:
               cost = htmlEl.split('</font> ')[1]
+              if (cost.includes('</font>')) {
+                cost = $(cost).text()
+              }
               // console.log(cost);
               break;
 
@@ -116,7 +118,6 @@ function getCEdataAndWriteFile (req, res, next) {
       // 写入文件
       fs.writeFileSync('./assets/craft_essence.txt', JSON.stringify(list))
       console.log('writeFileSync done!');
-      next()
     })
     .catch((err) => {
       console.log('superagent err', err);
@@ -129,8 +130,11 @@ function readFileAndGetCEdata (req, res, next) {
   next()
 }
 
-app.use(readFileAndGetCEdata);
+getCEdataAndWriteFile()
 
+
+
+app.use(readFileAndGetCEdata);
 app.get('/', (req, res, next) => {
   res.send(req.cedata)
 })
