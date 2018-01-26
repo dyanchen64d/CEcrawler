@@ -18,6 +18,7 @@ function getCEdataAndWriteFile () {
       $('#rounded-corner>tbody>tr').filter((i, el) => {
           return $(el).attr('id')
       }).each((idx, elem) => {
+        // if (idx !== 212) return;
         let $elem = $(elem)
 
         // 礼装 name
@@ -26,70 +27,45 @@ function getCEdataAndWriteFile () {
         let name_en = name.substr(name_jp.length)
 
         // 礼装 desc
-        let desc = $elem.children('.desc').last()
-        let no, rarity, cost, hp, maxhp, atk, maxatk, effect, maxlimit, details
-        let html = desc.html()
-        let htmlArr = html.split('<br>')
+        let descs = $elem.children('.desc').last().children('.tab-blue')
+        let no, rarity, cost, hp, maxhp, atk, maxatk, effect, maxlimit, details = ''
+        // console.log(descs);
 
-        htmlArr.forEach((htmlEl, htmlIdx) => {
-          switch (htmlIdx) {
-            // No
-            case 0:
-              no = htmlEl.split('</font> ')[1]
-              // console.log(no);
+        descs.each(function (tabidx, tab) {
+          let $tab = $(tab)
+
+          switch ($tab.text()) {
+            case 'No.':
+              no = $tab[0].next.data.trim()
               break;
-
-            // Rarity
-            case 1:
-              rarity = $(htmlEl.split('</font> ')[1]).text()
-              // console.log(rarity);
+            case 'Rarity':
+              rarity = $tab.next().text().trim()
               break;
-
-            // Cost
-            case 2:
-              cost = htmlEl.split('</font> ')[1]
-              if (cost.includes('</font>')) {
-                cost = $(cost).text()
-              }
-              // console.log(cost);
+            case 'Cost':
+              cost = $tab[0].next.data.trim()
               break;
-
-            // hp maxhp
-            case 3:
-              let hpstr = htmlEl.split('</font> ')
-              hp = hpstr[1].split(' <a>')[0]
-              maxhp = hpstr[2]
-              // console.log(hp, maxhp);
+            case 'HP':
+              hp = $tab[0].next.data.trim()
               break;
-
-            // atk, maxatk
-            case 4:
-              let atkstr = htmlEl.split('</font> ')
-              atk = atkstr[1].split(' <a>')[0]
-              maxatk = atkstr[2]
-              // console.log(atk, maxatk);
+            case 'Max HP':
+              maxhp = $tab[0].next.data.trim()
               break;
-
-            // effect
-            case 5:
-              effect = $(htmlEl.split('</font> ')[1]).text()
-              // console.log(effect);
+            case 'ATK':
+              atk = $tab[0].next.data.trim()
               break;
-
-            // maxlimit
-            case 6:
-              maxlimit = $(htmlEl.split('</font> ')[1]).text()
-              // console.log(maxlimit);
+            case 'Max ATK':
+              maxatk = $tab[0].next.data.trim()
               break;
-
-            // details
-            case 7:
-              details = $(htmlEl.split('</font> ')[1]).text()
-              // console.log(details);
+            case 'Skill':
+              effect = $tab.next().html().replace(/\<br\>/g, '\n').trim()
               break;
-
+            case 'Max Limit':
+              maxlimit = $tab.next().children('font').html().replace(/\<br\>/g, '\n').trim()
+              break;
+            case 'Details':
+              details = $tab.next().text().trim()
+              break;
             default:
-              // console.log('switch default!');
           }
         })
 
